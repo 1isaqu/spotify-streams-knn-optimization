@@ -81,20 +81,21 @@ This hybrid metaheuristic approach combines:
 ## 📁 Project Structure
 
 ```
-otimizacao/
-├── Most Streamed Spotify Songs 2024.csv    # Dataset from Kaggle
-├── otimizacao hiperparametros.py           # Main optimization script
-├── best_knn_model.pkl                      # Best model across all runs
-├── optimization_history.png                # Comparison plot of all 10 runs
-├── models/                                 # Directory with all run results
-│   ├── knn_model_run1_seed43.pkl          # Model from run 1
-│   ├── knn_model_run2_seed44.pkl          # Model from run 2
-│   ├── ...                                 # Models from runs 3-10
-│   ├── optimization_history_run1.png       # Score evolution for run 1
-│   ├── optimization_history_run2.png       # Score evolution for run 2
-│   ├── ...                                 # Plots for runs 3-10
-│   └── all_runs_summary.csv                # Summary of all 10 runs
-└── README.md                               # Project documentation
+spotify-streams-knn-optimization/
+├── src/                            # Source code modules
+│   ├── __init__.py
+│   ├── preprocessing.py            # Data loading and cleaning
+│   ├── model_training.py           # Pipeline factory
+│   ├── hyperopt.py                 # Simulated Annealing engine
+│   ├── evaluation.py               # Metrics and specific evaluation
+│   └── utils_io.py                 # File I/O and plotting
+├── config.py                       # Configuration constants
+├── main.py                         # Main entry point assignment
+├── otimizacao_hiperparametros_legacy.py # Analysis script (backup)
+├── Most Streamed Spotify Songs 2024.csv
+├── best_knn_model.pkl              # Best model
+├── optimization_history.png        # Results plot
+└── README.md                       # Documentation
 ```
 
 ## 🚀 Getting Started
@@ -106,9 +107,13 @@ pip install pandas numpy scikit-learn matplotlib joblib
 ```
 
 ### Running the Optimization
-
 ```bash
-python "otimizacao hiperparametros.py"
+python main.py
+```
+
+You can also specify arguments:
+```bash
+python main.py --n-runs 20 --seed 123 --max-iters 500
 ```
 
 ### Using the Trained Model
