@@ -184,6 +184,39 @@ The optimization process:
 - **joblib**: Model serialization
 - **multiprocessing**: Parallel execution of optimization runs
 
+## 🏗️ Technical Architecture & Design Decisions
+
+### Why Simulated Annealing vs Grid Search?
+
+| Metric | Simulated Annealing (Current) | Grid Search |
+|--------|-------------------------------|-------------|
+| **Complexity** | $O(k)$ where $k$ is iterations | $O(N \times M \times ...)$ exponential |
+| **Search Space** | Can explore large/continuous spaces | Restricted to predefined grid |
+| **Local Optima** | Can escape via probabilistic acceptance | Trapped if grid is too coarse |
+| **Efficiency** | Finds near-optimal solutions faster | Guaranteed optimal but extremely slow |
+
+**Decision**: We chose **Simulated Annealing** because:
+1. It efficiently explores the hyperparameter space without exhaustively testing every combination.
+2. The probabilistic acceptance criteria (`exp(delta/T)`) allows the algorithm to escape local optima, unlike greedy Hill Climbing.
+3. It scales better if we decide to add more hyperparameters (e.g., leaf_size, p) in the future.
+
+### Why K-Nearest Neighbors (KNN)?
+- **Non-parametric**: Makes no assumptions about the underlying data distribution, which is ideal for complex streaming patterns.
+- **Interpretability**: Predictions can be explained by looking at the "nearest" songs in feature space.
+- **Baseline Strength**: Serves as an excellent baseline to measure feature predictive power before trying more complex models like XGBoost.
+
+### Why Logarithmic Transformation?
+The target variable `Spotify Streams` follows a **Power Law distribution** (few songs have billions of streams, most have few).
+- **Problem**: Raw values span orders of magnitude ($10^3$ to $10^{10}$), causing regression models to focus excessively on high-stream outliers.
+- **Solution**: `np.log1p(y)` compresses this range, making the distribution more Gaussian-like and stabilizing the training process (homoscedasticity).
+
+### Code Modularization Strategy
+Refactored from a monolithic script to a modular architecture to adhere to **Separation of Concerns**:
+- `src/preprocessing`: Pure functions for data transformation (Easy to test).
+- `src/hyperopt`: Encapsulates the optimization engine, decoupling it from the model.
+- `src/evaluation`: Centralized metric logic ensures consistency across runs.
+- `tests/`: Unit tests ensure reliability of data cleaning and metric calculations.
+
 ## 📝 Key Learnings
 
 1. **Metaheuristic Optimization**: Random Hill Climbing with Simulated Annealing provides a good balance between exploration and exploitation
